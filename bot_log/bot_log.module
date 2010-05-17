@@ -222,7 +222,7 @@ function bot_log_insert($type, $channel, $nick, $message) {
  * @return $html
  *   A themed log for display.
  */
-function bot_log_day($channel = NULL, $day = NULL, $field = NULL, $message = NULL) {
+function bot_log_day($channel = NULL, $day = NULL, $field = NULL, $terms = NULL) {
   $output = NULL;
 
   // if there's no channel...
@@ -242,8 +242,8 @@ function bot_log_day($channel = NULL, $day = NULL, $field = NULL, $message = NUL
     $day_start = strtotime("$day GMT");
     $day_end   = $day_start + (60 * 60 * 24);
     // see bot_log_irc_msg_quit() for why we use a regexp on channels for lookups.
-    if (isset($field) && isset($message)) { // We're searching for a clue!
-      $results = db_query("SELECT * FROM {bot_log} WHERE channel REGEXP '.*#%s( |$)' AND (timestamp >= %d AND timestamp <= %d) AND %s LIKE '%%%s%%' ORDER BY id", $channel, $day_start, $day_end, $field, $message);
+    if (isset($field) && isset($terms)) { // We're searching for a clue!
+      $results = db_query("SELECT * FROM {bot_log} WHERE channel REGEXP '.*#%s( |$)' AND (timestamp >= %d AND timestamp <= %d) AND %s LIKE '%%%s%%' ORDER BY id", $channel, $day_start, $day_end, $field, $terms);
     }
     else {
       $results = db_query("SELECT * FROM {bot_log} WHERE channel REGEXP '.*#%s( |$)' AND (timestamp >= %d AND timestamp <= %d) ORDER BY id", $channel, $day_start, $day_end);
@@ -367,12 +367,27 @@ function bot_log_filter_form(&$form_state, $channel, $date = NULL) {
   $date = $date ? strtotime($date) : time();
   $day_before_date = date('Y-m-d', $date - (60 * 60 * 24));
   $day_after_date = date('Y-m-d', $date + (60 * 60 * 24));
+  
+  $field = arg(4);
+  $terms = arg(5);
+
+  $url_after = $channel . '/' . $day_after_date;
+  $url_before = $channel . '/' . $day_before_date;
+
+  // Keep the links persistent, respecting the filter we set up.
+  if (isset($field)) {
+    $url_after .= '/' . $field;
+    $url_before .= '/' . $field;
+  }
+  if (isset($terms)) {
+    $url_after .= '/' . $terms;
+    $url_before .= '/' . $terms;
+  }
 
   $form['bot_log_channel'] = array(
     '#type'          => 'hidden',
     '#value'         => $channel,
   );
-
   $form['bot_log_date'] = array(
     '#type' => 'fieldset',
     '#title' => t('Date'),
@@ -382,17 +397,15 @@ function bot_log_filter_form(&$form_state, $channel, $date = NULL) {
   );
   $form['bot_log_date']['before'] = array(
     '#type' => 'markup',
-    '#value' => '&lsaquo; ' . l($day_before_date, 'bot/log/' . $channel . '/' . $day_before_date, array('class' => 'first')),
+    '#value' => '&lsaquo; ' . l($day_before_date, 'bot/log/' . $url_before),
   );
   $form['bot_log_date']['date'] = array(
     '#default_value' => array('year' => date('Y', $date), 'month'=> date('n', $date),'day' => date('j', $date)),
-//    '#prefix'        => '<div class="container-inline">&lsaquo; ' . l($day_before_date, 'bot/log/' . $channel . '/' . $day_before_date),
-//    '#suffix'        => l($day_after_date, 'bot/log/' . $channel . '/' . $day_after_date) . ' &rsaquo;</div>',
     '#type'          => 'date',
   );
   $form['bot_log_date']['after'] = array(
     '#type' => 'markup',
-    '#value' => l($day_after_date, 'bot/log/' . $channel . '/' . $day_after_date) . ' &rsaquo;',
+    '#value' => l($day_after_date, 'bot/log/' . $url_after) . ' &rsaquo;',
   );
   $form['bot_log_search'] = array(
     '#type' => 'fieldset',
@@ -406,14 +419,13 @@ function bot_log_filter_form(&$form_state, $channel, $date = NULL) {
     '#title' => t('Field'),
     '#multiple' => FALSE,
     '#options' => array('nick' => t('Nick'), 'message' => t('Message')),
-    '#default_value' => 'nick',
+    '#default_value' => isset($field) ? $field : 'nick',
   );
-  
   $form['bot_log_search']['terms'] = array(
     '#type' => 'textfield',
     '#title' => t('Terms'),
+    '#default_value' => isset($terms) ? $terms : '',
   );
-  
   $form['bot_log_submit'] = array(
     '#type'          => 'submit',
     '#value'         => t('Apply'),
@@ -426,7 +438,7 @@ function bot_log_filter_form(&$form_state, $channel, $date = NULL) {
  * FormAPI #submit callback for redirecting to a channel by day.
  */
 function bot_log_filter_form_submit($form, &$form_state) {
-  $form_state['redirect'] = 'bot/log/' . $form_state['values']['bot_log_channel'] . '/' . date('Y-m-d', mktime(0, 0, 0, $form_state['values']['bot_log_date']['month'], $form_state['values']['bot_log_date']['day'], $form_state['values']['bot_log_date']['year'])) . '/' . $form_state['values']['bot_log_field'] . '/' . $form_state['values']['bot_log_search'];;
+  $form_state['redirect'] = 'bot/log/' . $form_state['values']['bot_log_channel'] . '/' . date('Y-m-d', mktime(0, 0, 0, $form_state['values']['bot_log_date']['date']['month'], $form_state['values']['bot_log_date']['date']['day'], $form_state['values']['bot_log_date']['date']['year'])) . '/' . $form_state['values']['bot_log_search']['field'] . '/' . $form_state['values']['bot_log_search']['terms'];
 }
 
 /**
