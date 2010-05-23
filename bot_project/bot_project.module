@@ -147,6 +147,61 @@ function bot_project_irc_msg_channel($data, $from_query = FALSE) {
 
       bot_message($to, $message);
     }
+    
+    // Handle project <projectname> lookups.
+    $addressed = bot_name_regexp();
+
+    if (preg_match("/^${addressed}project\s(.+?)$/i", $data->message, $matches)) {
+      // Try looking up the project page.
+      if (isset($matches[2])) {
+        $project = $matches[2];
+        $url = 'http://drupal.org/project/' . $project;
+        
+        $result = drupal_http_request($url);
+        if ($result->code != 200) {
+          bot_message($data->channel, t('Project @projectname not found.', array('@projectname' => $project)));
+        }
+        else { // Project is alive and well. First we try to serve data from cache.
+          if ($cache = cache_get('bot_project_' . $project) && $cache->data) {
+            $data = $cache->data;
+          }
+          else {
+            module_load_include('inc', 'bot_project', 'bot_project_parsers');
+            /*
+            if (module_exists('update')) {
+              module_load_include('inc', 'update', 'update.fetch');
+              // Fetch project details via update xml.
+              $base_url = 'http://updates.drupal.org/release-history/' . $project;
+              // Core major versions we will check for.
+              $cores = array(5, 6, 7);
+              foreach ($cores as $version) {
+                $fetch_url = $base_url . '/' . $version;
+                $xml = drupal_http_request($project_fetch_url);
+                if ($xml->data) {
+                  $parser = new update_xml_parser;
+                  $available = $parser->parse($data);
+                }
+              }
+            }
+            else {*/
+              $project_data['fullname'] = _bot_project_parse_title($project, $result->data);
+              $project_data['versions'] = _bot_project_parse_versions($project, $result->data);
+              $project_data['usage'] = _bot_project_parse_usage($project, $result->data);
+              $project_data['issues'] = _bot_project_parse_issues($project, $result->data);
+            /*}*/
+            cache_set('bot_project_' . $project, $data);
+          }
+          bot_message($data->channel, t('Project @fullname (!url) versions: @versions, users: @users, @issues', 
+            array(
+              '@fullname' => $project_data['fullname'],
+              '!url' => $project_data['url'],
+              '@versions' => $project_data['versions'],
+              '@usage' => $project_data['usage'],
+              '@issues' => $project_data['issues'],
+              )));
+        }
+      }
+    }
   }
 
   // ======================================================================== */
