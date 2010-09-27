@@ -63,6 +63,16 @@ function bot_log_theme() {
 }
 
 /**
+ * Implementation of hook_views_api().
+ */
+function bot_log_views_api() {
+  return array(
+    'api' => 2,
+    'path' => drupal_get_path('module', 'bot_log') . '/views',
+  );
+}
+
+/**
  * Log regular channel communications.
  */
 function bot_log_irc_msg_channel($data) {
