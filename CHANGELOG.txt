@@ -1,7 +1,8 @@
-// $Id: CHANGELOG.txt,v 1.14.2.16.2.43 2010/05/12 22:00:44 morbus Exp $
+// $Id: CHANGELOG.txt,v 1.14.2.16.2.44 2010/10/21 12:51:36 morbus Exp $
 
 Bot 6.x-1.x, xxxx-xx-xx
 -----------------------
+  * #937836 and #937820: PostgreSQL and E_STRICT fixes (thanks Shiny).
   * #477596: Fixed regexp error in bot_seen.module (thanks Gurpartap).
   * bot_tell.module can now remind you of things: "BOTNAME: help Reminders?"
   * bot_potpourri.module added (thanks, ae1): "BOTNAME: help Timezones?"
