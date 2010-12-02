@@ -11,5 +11,10 @@ D/bot_tell////
 /bot.info/1.2.2.1.2.2/Wed Jun  2 09:50:08 2010//TDRUPAL-6--1
 /bot.install/1.1.2.1.2.1/Wed Jun  2 09:50:08 2010//TDRUPAL-6--1
 /bot_start.php/1.2.2.4.2.6/Wed Jun  2 09:50:08 2010//TDRUPAL-6--1
+<<<<<<< HEAD
 /CHANGELOG.txt/1.14.2.16.2.44/Tue Nov 30 22:05:50 2010//TDRUPAL-6--1
 /bot.module/1.9.2.9.2.22/Tue Nov 30 22:05:50 2010//TDRUPAL-6--1
+=======
+/CHANGELOG.txt/1.14.2.16.2.44/Tue Nov 30 22:07:21 2010//TDRUPAL-6--1
+/bot.module/1.9.2.9.2.22/Tue Nov 30 22:07:21 2010//TDRUPAL-6--1
+>>>>>>> master

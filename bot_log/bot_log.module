@@ -168,7 +168,7 @@ function bot_log_irc_bot_reply_message($to, $message) {
  * Log bot actions (as normal channel messages).
  */
 function bot_log_irc_bot_reply_action($to, $message) {
-  if (substr($to, 0, 1) == '#' && !empty($message)) { // but, naturally, only for channel messages that are not empty.
+  if (substr($to, 0, 1) == '#') { // but, naturally, only for channel messages.
     include_once("Net/SmartIRC/defines.php"); // load the whole thingy in for one constant. bah!
     bot_log_insert(SMARTIRC_TYPE_ACTION, $to, variable_get('bot_nickname', 'bot_module'), $message);
   }
