@@ -1,0 +1,6 @@
+; $Id: bot.info,v 1.2.2.1.2.2.2.1 2010/12/24 13:49:53 morbus Exp $
+name = Bot
+package = Bot
+description = "Enables a network and plugin framework for IRC bots."
+configure = admin/config/bot
+core = 7.x

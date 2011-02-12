@@ -1,0 +1,8 @@
+; $Id: bot_aggregator.info,v 1.1.2.1.2.1 2010/12/24 14:36:11 morbus Exp $
+name = Bot Aggregator
+package = Bot
+dependencies[] = bot
+dependencies[] = aggregator
+description = Enables the reporting of aggregated feed items to configured channels.
+configure = admin/config/bot/aggregator
+core = 7.x
